@@ -5,7 +5,14 @@ import { IEvents } from './base/events';
 
 export class Card<T> extends Component<IProduct> {
 	protected events: IEvents;
-
+	protected _categoryColor = <Record<string, string>> {
+		"софт-скил": "soft",
+    "другое": "other",
+    "дополнительное": "additional",
+    "кнопка": "button",
+    "хард-скил": "hard"
+	}
+	protected _index?: HTMLElement;
 	protected _title: HTMLElement;
 	protected _image?: HTMLImageElement;
 	protected _id: string;
@@ -23,6 +30,7 @@ export class Card<T> extends Component<IProduct> {
 		super(container);
 		this.events = events;
 
+		this._index = this.container.querySelector('.basket__item-index');
 		this._title = this.container.querySelector(`.${blockName}__title`);
 		this._price = this.container.querySelector(`.${blockName}__price`);
 		this._image = this.container.querySelector(`.${blockName}__image`);
@@ -37,6 +45,21 @@ export class Card<T> extends Component<IProduct> {
 				container.addEventListener('click', actions.onClick);
 			}
 		}
+	}
+
+	set button(value: boolean) {
+		this.setDisabled(this._button, value);
+		if(value) {
+			this.setText(this._button, 'Уже в корзине');
+		}
+	}
+
+	set index(value: number) {
+		this.setText(this._index, value);
+	}
+
+	get index() {
+		return Number(this.container.dataset.index);
 	}
 
 	set id(value: string) {
@@ -71,26 +94,8 @@ export class Card<T> extends Component<IProduct> {
 
 	set category(value: string) {
 		this.setText(this._category, value);
-		if (this._category) {
-			switch (value) {
-				case 'софт-скил':
-					this.toggleClass(this._category, 'card__category_soft');
-					break;
-				case 'хард-скил':
-					this.toggleClass(this._category, 'card__category_hard');
-					break;
-				case 'дополнительное':
-					this.toggleClass(this._category, 'card__category_additional');
-					break;
-				case 'кнопка':
-					this.toggleClass(this._category, 'card__category_button');
-					break;
-				case 'другое':
-					this.toggleClass(this._category, 'card__category_other');
-					break;
-				default:
-					this.toggleClass(this._category, 'card__category_other');
-			}
+		if(this._category) {
+					this.toggleClass(this._category, `${this.blockName}__category_${this._categoryColor[value]}`, true);
 		}
 	}
 

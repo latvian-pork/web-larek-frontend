@@ -3,12 +3,14 @@ import { ApiPostMethods } from '../components/base/api';
 // Типы данных, получаемых с сервера
 
 export interface IProduct {
+	isInBasket?: boolean;
 	id: string;
 	description: string;
 	image: string;
 	title: string;
 	category: string;
 	price: number | null;
+	index: number;
 }
 
 export interface IProductList {

@@ -1,12 +1,12 @@
-import { IBasketView } from '../../types';
-import { createElement, ensureElement } from '../../utils/utils';
-import { Component } from '../base/Component';
-import { EventEmitter } from '../base/events';
+import { IBasketView } from "../types";
+import { createElement, ensureElement } from "../utils/utils";
+import { Component } from "./base/Component";
+import { EventEmitter } from "./base/events";
 
 export class Basket extends Component<IBasketView> {
 	protected _list: HTMLElement;
 	protected _total: HTMLElement;
-	protected _button: HTMLElement;
+	protected _button: HTMLButtonElement;
 
 	constructor(container: HTMLElement, protected events: EventEmitter) {
 		super(container);
@@ -20,7 +20,6 @@ export class Basket extends Component<IBasketView> {
 				events.emit('order:open');
 			});
 		}
-
 		this.items = [];
 	}
 

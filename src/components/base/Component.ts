@@ -4,6 +4,7 @@ import { IEvents } from './events';
  * Базовый компонент
  */
 export abstract class Component<T> {
+	protected _button?: HTMLButtonElement;
 	protected constructor(protected readonly container: HTMLElement) {}
 
 	// Инструментарий для работы с DOM в дочерних компонентах

@@ -16,6 +16,7 @@ export class CardItem extends Model<ICard> {
 	title: string;
 	category: string;
 	price: number;
+	index: number;
 }
 
 export class AppState extends Model<IAppState> {
@@ -83,7 +84,6 @@ export class AppState extends Model<IAppState> {
 
 	setCatalog(items: ICard[]) {
 		this.catalog = items.map((item) => new CardItem(item, this.events));
-		this.emitChanges('items:changed', { catalog: this.catalog });
 	}
 
 	setPreview(item: CardItem) {
@@ -94,13 +94,10 @@ export class AppState extends Model<IAppState> {
 	setOrderField(field: keyof TBuyerInfo, value: string) {
 		this.order[field] = value;
 		if (this.validateAddressForm()) {
-			this.events.emit('address:ready');
 		}
 		if (this.validateContactsForm()) {
-			this.events.emit('contacts:ready');
 		}
 		if (this.validateOrder()) {
-			this.events.emit('order:ready', this.order);
 		}
 	}
 
@@ -123,10 +120,12 @@ export class AppState extends Model<IAppState> {
 
 	validateContactsForm(): boolean {
 		const errors: typeof this.formErrors = {};
-		if (this.order.email.length === 0) {
+		const emailRegex = /([a-aA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+		if (!emailRegex.test(this.order.email)) {
 			errors.email = 'Укажите почту';
 		}
-		if (this.order.phone.length === 0) {
+		const phoneRegex = /(\+7|8)[- _]*\(?[- _]*(\d{3}[- _]*\)?([- _]*\d){7}|\d\d[- _]*\d\d[- _]*\)?([- _]*\d){6})/g;
+		if (!phoneRegex.test(this.order.phone)) {
 			errors.phone = 'Укажите номер телефона';
 		}
 		this.formErrors = errors;

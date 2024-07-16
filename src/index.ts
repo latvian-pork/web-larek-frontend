@@ -4,7 +4,6 @@ import { Card } from './components/Card';
 import { AddressForm, ContactsForm } from './components/Order';
 import { Page } from './components/Page';
 import { EventEmitter } from './components/base/events';
-import { Basket } from './components/common/Basket';
 import { Form } from './components/common/Form';
 import { Modal } from './components/common/Modal';
 import { Success } from './components/Success';
@@ -13,6 +12,7 @@ import { IBuyerData, TAddressForm, TBuyerInfo, TContactsForm } from './types';
 import { API_URL, CDN_URL } from './utils/constants';
 import { cloneTemplate, createElement, ensureElement } from './utils/utils';
 import { ApiListResponse } from './components/base/api';
+import { Basket } from './components/Basket';
 
 const events = new EventEmitter();
 const appData = new AppState({ basket: [] }, events);
@@ -83,6 +83,7 @@ events.on('preview:changed', (item: CardItem) => {
 				page.counter = appData.basket.length;
 			},
 		});
+		card.button = appData.basket.includes(item.id);
 		modal.render({
 			content: card.render(item),
 		});
@@ -130,18 +131,21 @@ events.on('addressErrors:change', (errors: Partial<TBuyerInfo>) => {
 		.join('; ');
 });
 
-// Отрабатываем изменения в полях формы с адресом
+// Отрабатываем изменения в полях форм
+
+// Изменение полей доставки
 events.on(
-	'order.address:change',
+	/^order\..*:change/,
 	(data: { field: keyof TAddressForm; value: string }) => {
-		appData.setOrderField(data.field, data.value);
+			appData.setOrderField(data.field, data.value);
 	}
 );
 
+// Изменение полей контактов
 events.on(
-	'order.payment:change',
-	(data: { field: keyof TAddressForm; value: string }) => {
-		appData.setOrderField(data.field, data.value);
+	/^contacts\..*:change/,
+	(data: { field: keyof TContactsForm; value: string }) => {
+			appData.setOrderField(data.field, data.value);
 	}
 );
 
@@ -166,21 +170,6 @@ events.on('contactsErrors:change', (errors: Partial<TBuyerInfo>) => {
 		.join('; ');
 });
 
-// Отрабатываем изменения в полях формы с почтой
-events.on(
-	'contacts.email:change',
-	(data: { field: keyof TContactsForm; value: string }) => {
-		appData.setOrderField(data.field, data.value);
-	}
-);
-
-events.on(
-	'contacts.phone:change',
-	(data: { field: keyof TContactsForm; value: string }) => {
-		appData.setOrderField(data.field, data.value);
-	}
-);
-
 // Отправляем сформированный заказ на сервер
 events.on('order:send', () => {
 	appData.order.total = appData.getBasketTotal();
@@ -202,13 +191,12 @@ events.on('order:send', () => {
 							payment: '',
 						};
 						page.counter = 0;
-						events.emit('order:finish', res);
 				},
 			});
 			modal.render({
 				content: success.render({
                     total: res.total
-                }),
+                })
 			});
 		})
 		.catch((err) => {
@@ -233,6 +221,7 @@ events.on('basket:open', () => {
 						},
 					}
 				);
+				card.index = appData.basket.indexOf(item) + 1;
 				return card.render(appData.getProduct(item));
 			}),
 			total: appData.getBasketTotal() || 0,

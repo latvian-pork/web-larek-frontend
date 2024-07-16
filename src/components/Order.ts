@@ -33,20 +33,20 @@ export class AddressForm extends Form<TAddressForm> {
 		this._cardButton.addEventListener('click', () => {
 			this.onInputChange('payment', 'card');
 		});
-		this._button = container.querySelector('.order__button');
-		this._button.addEventListener('click', () => {
+		this._button = this._submit;
+		this.container.addEventListener('submit', () => {
 			events.emit('contacts:open');
 		});
 	}
 
 	set payment(value: string) {
 		if ((value = 'card')) {
-			this._cardButton.classList.add('button_alt-active');
-			this._cashButton.classList.remove('button_alt-active');
+			this.toggleCard();
+			this.toggleCash(false);
 		}
 		if ((value = 'cash')) {
-			this._cardButton.classList.remove('button_alt-active');
-			this._cashButton.classList.add('button_alt-active');
+			this.toggleCard(false);
+			this.toggleCash();
 		}
 	}
 
@@ -54,14 +54,23 @@ export class AddressForm extends Form<TAddressForm> {
 		(this.container.elements.namedItem('address') as HTMLInputElement).value =
 			value;
 	}
+
+	toggleCard(state: boolean = true) {
+		this.toggleClass(this._cardButton, 'button_alt-active', state);
+}
+
+toggleCash(state: boolean = true) {
+	this.toggleClass(this._cashButton, 'button_alt-active', state);
+}
+
 }
 
 export class ContactsForm extends Form<TContactsForm> {
 	protected _button: HTMLButtonElement;
 	constructor(container: HTMLFormElement, events: IEvents) {
 		super(container, events);
-		this._button = container.querySelector('.button');
-		this._button.addEventListener('click', () => {
+		this._button = this._submit;
+		this.container.addEventListener('submit', () => {
 			events.emit('order:send');
 		});
 	}
